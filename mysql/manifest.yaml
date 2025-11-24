@@ -14,7 +14,7 @@ spec:
       component: mysql
       project: expense
       tier: db
-  templete:
+  template:
     metadata:
       labels:
         component: mysql
