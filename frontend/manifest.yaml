@@ -100,29 +100,29 @@ metadata:
   labels:
     project: expense
     component: frontend
-    tier: webtier
+    tier: web
 spec:
   replicas: 2
   selector:
     matchLabels:
       project: expense
       component: frontend
-      tier: webtier
+      tier: web
   template:
     metadata:
       labels:
         project: expense
         component: frontend
-        tier: webtier
+        tier: web
     spec:
       containers:
       - name: frontend
-        image: msaivenkatasiva/frontend:v1.0
+        image: msaivenkatasiva/expense-frontend:v1.0
         volumeMounts:
         - name: nginx-conf
           mountPath: /etc/nginx/nginx.conf
-          subpath: nginx.conf
-          readonly: true
+          subPath: nginx.conf
+          readOnly: true
       volumes:
       - name: nginx-conf
         configMap:
@@ -144,4 +144,4 @@ spec:
   ports:
   - protocol: TCP
     port: 80
-    targetport: 8080
+    targetPort: 8080
