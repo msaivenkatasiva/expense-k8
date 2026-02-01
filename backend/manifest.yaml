@@ -31,16 +31,20 @@ spec:
         project: expense
         tier: backend
     spec:
+      initContainers:
+      - name: init-myservice
+        image: busybox:1.28
+        command: ['sh', '-c', "until nslookup mysql; do echo waiting for myservice; sleep 2; done"]
       containers:
       - name: backend
         image: msaivenkatasiva/expense-backend:v1.0
-        # resources:
-        #   requests: 
-        #     cpu: "100m"
-        #     memory: "128Mi"
-        #   limits: 
-        #     cpu: "150m"
-        #     memory: "256Mi"
+        resources:
+          requests: 
+            cpu: "100m"
+            memory: "128Mi"
+          limits: 
+            cpu: "150m"
+            memory: "256Mi"
         envFrom:
         - configMapRef:
             name: backend
