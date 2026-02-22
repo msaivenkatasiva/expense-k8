@@ -4,7 +4,8 @@ metadata:
   name: backend
   namespace: expense
 data:
-  DB_HOST: mysql #mysql component service name
+  # DB_HOST: mysql #mysql component service name
+  DB_HOST: db-dev.devops76.sbs
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -34,7 +35,7 @@ spec:
       initContainers:
       - name: init-myservice
         image: busybox:1.28
-        command: ['sh', '-c', "until nslookup mysql; do echo waiting for myservice; sleep 2; done"]
+        command: ['sh', '-c', "until nslookup db-dev.devops76.sbs; do echo waiting for myservice; sleep 2; done"]
       containers:
       - name: backend
         image: msaivenkatasiva/expense-backend:v1.0

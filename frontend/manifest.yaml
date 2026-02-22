@@ -152,3 +152,14 @@ spec:
   - protocol: TCP
     port: 80
     targetPort: 8080
+---
+apiVersion: elbv2.k8s.aws/v1beta1
+kind: TargetGroupBinding
+metadata:
+  name: frontend
+  namespace: expense
+spec:
+  serviceRef:
+    name: frontend # route traffic to the awesome-service
+    port: 80
+  targetGroupARN: <arn-to-targetGroup>
