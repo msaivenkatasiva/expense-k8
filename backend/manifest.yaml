@@ -38,7 +38,7 @@ spec:
         command: ['sh', '-c', "until nslookup db-dev.devops76.sbs; do echo waiting for myservice; sleep 2; done"]
       containers:
       - name: backend
-        image: msaivenkatasiva/expense-backend:v1.0
+        image: msaivenkatasiva/expense-backend:v1.1
         resources:
           requests: 
             cpu: "100m"
