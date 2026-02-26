@@ -27,4 +27,10 @@ helm repo add eks https://aws.github.io/eks-charts
 
 kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller//crds?ref=master"
 
-helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=expense-dev
+get_vpc_id
+aws eks describe-cluster \
+  --name expense-dev \
+  --query "cluster.resourcesVpcConfig.vpcId" \
+  --output text
+
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=expense-dev --set region=us-east-1 --set region=us-east-1 --set vpcId=

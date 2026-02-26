@@ -38,7 +38,7 @@ spec:
         command: ['sh', '-c', "until nslookup db-dev.devops76.sbs; do echo waiting for myservice; sleep 2; done"]
       containers:
       - name: backend
-        image: msaivenkatasiva/expense-backend:v1.1
+        image: msaivenkatasiva/expense-backend:v1.2
         resources:
           requests: 
             cpu: "100m"
@@ -78,3 +78,6 @@ spec:
   - protocol: TCP
     port: 8080
     targetPort: 8080
+
+
+    
