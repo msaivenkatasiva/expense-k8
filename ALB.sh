@@ -1,9 +1,12 @@
 #!bin/bash
 
+aws eks update-kubeconfig --name expense-dev --region us-east-1
+
+
 # IAM Permissions
 eksctl utils associate-iam-oidc-provider \
-    --region us-east-1 \
-    --cluster expense-dev \             
+    --region <region-code> \
+    --cluster <your-cluster-name> \
     --approve
 
 curl -o iam-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.1.2/docs/install/iam_policy.json

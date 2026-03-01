@@ -118,13 +118,13 @@ spec:
       containers:
       - name: frontend
         image: msaivenkatasiva/expense-frontend:v1.0
-        # resources:
-        #   requests: 
-        #     cpu: "100m"
-        #     memory: "128Mi"
-        #   limits: 
-        #     cpu: "150m"
-        #     memory: "256Mi"
+        resources:
+          requests: 
+            cpu: "100m"
+            memory: "128Mi"
+          limits: 
+            cpu: "150m"
+            memory: "256Mi"
         volumeMounts:
         - name: nginx-conf
           mountPath: /etc/nginx/nginx.conf
@@ -147,7 +147,7 @@ spec:
   selector: 
     project: expense
     component: frontend
-    tier: webtier
+    tier: web
   ports:
   - protocol: TCP
     port: 80
@@ -162,4 +162,25 @@ spec:
   serviceRef:
     name: frontend # route traffic to the awesome-service
     port: 80
-  targetGroupARN: arn:aws:elasticloadbalancing:us-east-1:210749645231:targetgroup/expense-dev-frontend/c4bab1bfe1515d9d
+  targetGroupARN: arn:aws:elasticloadbalancing:us-east-1:210749645231:targetgroup/expense-dev-frontend/7724acd3505e3ea6
+
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: frontend
+#   namespace: expense
+#   annotations:
+#     alb.ingress.kubernetes.io/scheme: internet-facing
+#     alb.ingress.kubernetes.io/target-type: ip
+# spec:
+#   ingressClassName: alb
+#   rules:
+#   - http:
+#       paths:
+#       - path: /
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: frontend
+#             port:
+#               number: 80
