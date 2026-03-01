@@ -162,7 +162,7 @@ spec:
   serviceRef:
     name: frontend # route traffic to the awesome-service
     port: 80
-  targetGroupARN: arn:aws:elasticloadbalancing:us-east-1:210749645231:targetgroup/expense-dev-frontend/1a4e35ffa5e1a7e9
+  targetGroupARN: arn:aws:elasticloadbalancing:us-east-1:210749645231:targetgroup/expense-dev-frontend/7724acd3505e3ea6
 
 # apiVersion: networking.k8s.io/v1
 # kind: Ingress
