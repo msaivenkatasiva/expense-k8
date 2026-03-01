@@ -164,6 +164,7 @@ spec:
     port: 80
   targetGroupARN: arn:aws:elasticloadbalancing:us-east-1:210749645231:targetgroup/expense-dev-frontend/1a4e35ffa5e1a7e9
 
+
 # apiVersion: networking.k8s.io/v1
 # kind: Ingress
 # metadata:
