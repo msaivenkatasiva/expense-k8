@@ -1,128 +1,18 @@
-# apiVersion: v1
-# kind: ConfigMap
-# metadata:
-#   name: backend
-#   namespace: expense
-# data:
-#   # DB_HOST: mysql #mysql component service name
-#   DB_HOST: db-dev.devops76.sbs
-# ---
-# kind: Deployment
-# apiVersion: apps/v1
-# metadata:
-#   name: backend
-#   namespace: expense
-#   # these labels are deployment related labels
-#   labels:
-#     component: backend
-#     project: expense
-#     tier: backend
-# spec:
-#   replicas: 2
-#   selector:
-#     matchLabels: 
-#       component: backend
-#       project: expense
-#       tier: backend
-#   #pod definition
-#   template:
-#     metadata:
-#       labels:
-#         component: backend
-#         project: expense
-#         tier: backend
-#     spec:
-#       initContainers:
-#       - name: init-myservice
-#         image: busybox:1.28
-#         command: ['sh', '-c', "until nslookup db-dev.devops76.sbs; do echo waiting for myservice; sleep 2; done"]
-#       containers:
-#       - name: backend
-#         image: msaivenkatasiva/expense-backend:v1.2
-#         resources:
-#           requests: 
-#             cpu: "100m"
-#             memory: "128Mi"
-#           limits: 
-#             cpu: "150m"
-#             memory: "256Mi"
-#         livenessProbe:
-#           httpGet:
-#             path: /health
-#             port: 8080
-#           failureThreshold: 2
-#           periodSeconds: 5
-#           initialDelaySeconds: 30
-#         readinessProbe:
-#           httpGet:
-#             path: /health
-#             port: 8080
-#           failureThreshold: 2
-#           periodSeconds: 5
-#           initialDelaySeconds: 30
-#         envFrom:
-#         - configMapRef:
-#             name: backend
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: backend
-#   namespace: expense
-# spec:
-#   selector:
-#     component: backend
-#     project: expense
-#     tier: backend
-#   ports:
-#   - protocol: TCP
-#     port: 8080
-#     targetPort: 8080
----
-# Final Backend Manifest (with Automatic DB Initialization)
-
-# Final Secure Backend Manifest (Production Style)
-
----
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: backend
   namespace: expense
 data:
+  # DB_HOST: mysql #mysql component service name
   DB_HOST: db-dev.devops76.sbs
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: db-secret
-  namespace: expense
-type: Opaque
-stringData:
-  DB_USER: expense
-  DB_PASSWORD: ExpenseApp1
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: db-schema
-  namespace: expense
-data:
-  schema.sql: |
-    CREATE DATABASE IF NOT EXISTS transactions;
-    USE transactions;
-
-    CREATE TABLE IF NOT EXISTS transactions (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        amount INT,
-        description VARCHAR(255)
-    );
----
-apiVersion: apps/v1
 kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: backend
   namespace: expense
+  # these labels are deployment related labels
   labels:
     component: backend
     project: expense
@@ -130,10 +20,11 @@ metadata:
 spec:
   replicas: 2
   selector:
-    matchLabels:
+    matchLabels: 
       component: backend
       project: expense
       tier: backend
+  #pod definition
   template:
     metadata:
       labels:
@@ -141,66 +32,20 @@ spec:
         project: expense
         tier: backend
     spec:
-
       initContainers:
-
-      # Wait for database DNS
-      - name: wait-for-db
+      - name: init-myservice
         image: busybox:1.28
-        command:
-        - sh
-        - -c
-        - |
-          until nslookup $DB_HOST; do
-            echo waiting for database;
-            sleep 2;
-          done
-        env:
-        - name: DB_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: backend
-              key: DB_HOST
-
-      # Run schema initialization
-      - name: init-db
-        image: mysql:8
-        command:
-        - sh
-        - -c
-        - |
-          mysql -h $DB_HOST -u $DB_USER -p$DB_PASSWORD < /schema/schema.sql
-        env:
-        - name: DB_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: backend
-              key: DB_HOST
-        - name: DB_USER
-          valueFrom:
-            secretKeyRef:
-              name: db-secret
-              key: DB_USER
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: db-secret
-              key: DB_PASSWORD
-        volumeMounts:
-        - name: schema-volume
-          mountPath: /schema
-
+        command: ['sh', '-c', "until nslookup db-dev.devops76.sbs; do echo waiting for myservice; sleep 2; done"]
       containers:
       - name: backend
         image: msaivenkatasiva/expense-backend:v1.2
         resources:
-          requests:
+          requests: 
             cpu: "100m"
             memory: "128Mi"
-          limits:
+          limits: 
             cpu: "150m"
             memory: "256Mi"
-
         livenessProbe:
           httpGet:
             path: /health
@@ -208,7 +53,6 @@ spec:
           failureThreshold: 2
           periodSeconds: 5
           initialDelaySeconds: 30
-
         readinessProbe:
           httpGet:
             path: /health
@@ -216,28 +60,9 @@ spec:
           failureThreshold: 2
           periodSeconds: 5
           initialDelaySeconds: 30
-
-        env:
-        - name: DB_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: backend
-              key: DB_HOST
-        - name: DB_USER
-          valueFrom:
-            secretKeyRef:
-              name: db-secret
-              key: DB_USER
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: db-secret
-              key: DB_PASSWORD
-
-      volumes:
-      - name: schema-volume
-        configMap:
-          name: db-schema
+        envFrom:
+        - configMapRef:
+            name: backend
 ---
 apiVersion: v1
 kind: Service
@@ -253,6 +78,181 @@ spec:
   - protocol: TCP
     port: 8080
     targetPort: 8080
+---
+# Final Backend Manifest (with Automatic DB Initialization)
+
+# Final Secure Backend Manifest (Production Style)
+
+---
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: backend
+#   namespace: expense
+# data:
+#   DB_HOST: db-dev.devops76.sbs
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: db-secret
+#   namespace: expense
+# type: Opaque
+# stringData:
+#   DB_USER: expense
+#   DB_PASSWORD: ExpenseApp1
+# ---
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: db-schema
+#   namespace: expense
+# data:
+#   schema.sql: |
+#     CREATE DATABASE IF NOT EXISTS transactions;
+#     USE transactions;
+
+#     CREATE TABLE IF NOT EXISTS transactions (
+#         id INT AUTO_INCREMENT PRIMARY KEY,
+#         amount INT,
+#         description VARCHAR(255)
+#     );
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: backend
+#   namespace: expense
+#   labels:
+#     component: backend
+#     project: expense
+#     tier: backend
+# spec:
+#   replicas: 2
+#   selector:
+#     matchLabels:
+#       component: backend
+#       project: expense
+#       tier: backend
+#   template:
+#     metadata:
+#       labels:
+#         component: backend
+#         project: expense
+#         tier: backend
+#     spec:
+
+#       initContainers:
+
+#       # Wait for database DNS
+#       - name: wait-for-db
+#         image: busybox:1.28
+#         command:
+#         - sh
+#         - -c
+#         - |
+#           until nslookup $DB_HOST; do
+#             echo waiting for database;
+#             sleep 2;
+#           done
+#         env:
+#         - name: DB_HOST
+#           valueFrom:
+#             configMapKeyRef:
+#               name: backend
+#               key: DB_HOST
+
+#       # Run schema initialization
+#       - name: init-db
+#         image: mysql:8
+#         command:
+#         - sh
+#         - -c
+#         - |
+#           mysql -h $DB_HOST -u $DB_USER -p$DB_PASSWORD < /schema/schema.sql
+#         env:
+#         - name: DB_HOST
+#           valueFrom:
+#             configMapKeyRef:
+#               name: backend
+#               key: DB_HOST
+#         - name: DB_USER
+#           valueFrom:
+#             secretKeyRef:
+#               name: db-secret
+#               key: DB_USER
+#         - name: DB_PASSWORD
+#           valueFrom:
+#             secretKeyRef:
+#               name: db-secret
+#               key: DB_PASSWORD
+#         volumeMounts:
+#         - name: schema-volume
+#           mountPath: /schema
+
+#       containers:
+#       - name: backend
+#         image: msaivenkatasiva/expense-backend:v1.2
+#         resources:
+#           requests:
+#             cpu: "100m"
+#             memory: "128Mi"
+#           limits:
+#             cpu: "150m"
+#             memory: "256Mi"
+
+#         livenessProbe:
+#           httpGet:
+#             path: /health
+#             port: 8080
+#           failureThreshold: 2
+#           periodSeconds: 5
+#           initialDelaySeconds: 30
+
+#         readinessProbe:
+#           httpGet:
+#             path: /health
+#             port: 8080
+#           failureThreshold: 2
+#           periodSeconds: 5
+#           initialDelaySeconds: 30
+
+#         env:
+#         - name: DB_HOST
+#           valueFrom:
+#             configMapKeyRef:
+#               name: backend
+#               key: DB_HOST
+#         - name: DB_USER
+#           valueFrom:
+#             secretKeyRef:
+#               name: db-secret
+#               key: DB_USER
+#         - name: DB_PASSWORD
+#           valueFrom:
+#             secretKeyRef:
+#               name: db-secret
+#               key: DB_PASSWORD
+
+#       volumes:
+#       - name: schema-volume
+#         configMap:
+#           name: db-schema
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: backend
+#   namespace: expense
+# spec:
+#   selector:
+#     component: backend
+#     project: expense
+#     tier: backend
+#   ports:
+#   - protocol: TCP
+#     port: 8080
+#     targetPort: 8080
 
 
     
