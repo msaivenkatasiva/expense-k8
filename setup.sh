@@ -41,6 +41,10 @@
 
 #!/bin/bash
 
+aws eks update-kubeconfig --name expense-dev --region us-east-1
+
+echo "updating kube-config..."
+
 CLUSTER_NAME=expense-dev
 REGION=us-east-1
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
