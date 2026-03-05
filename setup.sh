@@ -41,6 +41,8 @@
 
 #!/bin/bash
 
+set -e
+
 aws eks update-kubeconfig --name expense-dev --region us-east-1
 
 echo "updating kube-config..."
@@ -53,6 +55,7 @@ echo "Associating OIDC Provider..."
 
 eksctl utils associate-iam-oidc-provider \
 --cluster $CLUSTER_NAME \
+--region $REGION \
 --approve
 
 echo "Downloading IAM policy..."
@@ -64,6 +67,14 @@ echo "Creating IAM policy..."
 aws iam create-policy \
 --policy-name AWSLoadBalancerControllerIAMPolicy \
 --policy-document file://iam_policy.json || true
+
+echo "Deleting old IAM ServiceAccount if exists..."
+
+eksctl delete iamserviceaccount \
+--cluster $CLUSTER_NAME \
+--namespace kube-system \
+--name aws-load-balancer-controller \
+--region $REGION || true
 
 echo "Creating IAM ServiceAccount..."
 
@@ -80,6 +91,8 @@ echo "Installing AWS Load Balancer Controller..."
 helm repo add eks https://aws.github.io/eks-charts
 helm repo update
 
+helm uninstall aws-load-balancer-controller -n kube-system || true
+
 VPC_ID=$(aws eks describe-cluster --name $CLUSTER_NAME --query "cluster.resourcesVpcConfig.vpcId" --output text)
 
 helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
@@ -94,4 +107,34 @@ echo "Creating namespace..."
 
 kubectl create namespace expense || true
 
-echo "Setup Complete!"
+echo "Waiting for controller to start..."
+
+sleep 10
+
+echo "Checking AWS Load Balancer Controller status..."
+
+kubectl get deployment aws-load-balancer-controller -n kube-system
+
+echo ""
+
+echo "Controller Pods:"
+
+kubectl get pods -n kube-system -l app.kubernetes.io/name=aws-load-balancer-controller
+
+echo ""
+
+echo "Setup Completed Successfully!"
+
+echo ""
+
+echo "Next Steps:"
+
+echo "1) Deploy Backend:"
+
+echo "   kubectl apply -f backend/manifest.yaml"
+
+echo ""
+
+echo "2) Deploy Frontend:"
+
+echo "   kubectl apply -f frontend/manifest.yaml"
