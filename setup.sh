@@ -60,7 +60,7 @@ eksctl utils associate-iam-oidc-provider \
 
 echo "Downloading IAM policy..."
 
-curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/main/docs/install/iam_policy.json
+curl -s -O https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/main/docs/install/iam_policy.json
 
 echo "Creating IAM policy..."
 
@@ -85,11 +85,9 @@ echo "Installing AWS Load Balancer Controller..."
 helm repo add eks https://aws.github.io/eks-charts
 helm repo update
 
-helm uninstall aws-load-balancer-controller -n kube-system || true
-
 VPC_ID=$(aws eks describe-cluster --name $CLUSTER_NAME --query "cluster.resourcesVpcConfig.vpcId" --output text)
 
-helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller \
 -n kube-system \
 --set clusterName=$CLUSTER_NAME \
 --set region=$REGION \
@@ -103,7 +101,11 @@ kubectl create namespace expense || true
 
 echo "Waiting for controller to start..."
 
-sleep 10
+kubectl wait \
+--for=condition=available \
+deployment/aws-load-balancer-controller \
+-n kube-system \
+--timeout=120s
 
 echo "Checking AWS Load Balancer Controller status..."
 
