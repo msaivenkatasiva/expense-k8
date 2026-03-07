@@ -109,14 +109,16 @@ metadata:
   namespace: expense
 data:
   schema.sql: |
-    CREATE DATABASE IF NOT EXISTS transactions;
-    USE transactions;
+    CREATE DATABASE IF NOT EXISTS expense;
+    USE expense;
 
     CREATE TABLE IF NOT EXISTS transactions (
         id INT AUTO_INCREMENT PRIMARY KEY,
         amount INT,
         description VARCHAR(255)
     );
+
+    
 ---
 apiVersion: apps/v1
 kind: Deployment
