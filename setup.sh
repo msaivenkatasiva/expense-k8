@@ -68,15 +68,8 @@ aws iam create-policy \
 --policy-name AWSLoadBalancerControllerIAMPolicy \
 --policy-document file://iam_policy.json || true
 
-echo "Deleting old IAM ServiceAccount if exists..."
 
-eksctl delete iamserviceaccount \
---cluster $CLUSTER_NAME \
---namespace kube-system \
---name aws-load-balancer-controller \
---region $REGION || true
-
-echo "Creating IAM ServiceAccount..."
+echo "Creating/updating IAM ServiceAccount..."
 
 eksctl create iamserviceaccount \
 --cluster $CLUSTER_NAME \
