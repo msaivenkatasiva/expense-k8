@@ -748,3 +748,18 @@ This project demonstrates a **complete DevOps deployment pipeline on Amazon EKS*
 * Kubernetes networking
 
 The experience gained from debugging and fixing these issues closely reflects **real production DevOps operations**.
+
+---
+
+# 👨‍💻 Author
+
+**Sai Venkata Siva**
+
+DevOps Enthusiast focused on:
+
+* Kubernetes
+* AWS
+* Infrastructure as Code
+* Cloud-native deployments
+
+---
